@@ -349,6 +349,7 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
   ) {
     return showModalBottomSheet<IsoCode>(
       context: context,
+      useRootNavigator: false,
       builder: (_) => SizedBox(
         height: height ?? MediaQuery.of(context).size.height - 90,
         child: _getCountrySelectorSheet(
