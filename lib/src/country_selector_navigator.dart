@@ -409,7 +409,7 @@ class CustomWoltModalSheetNavigator extends CountrySelectorNavigator {
   Future<IsoCode?> show(
     BuildContext context,
   ) {
-    return WoltModalSheet.show<IsoCode>(
+    return WoltModalSheet.show<IsoCode?>(
       context: context,
 
       pageListBuilder: (BuildContext context) {
@@ -430,7 +430,7 @@ class CustomWoltModalSheetNavigator extends CountrySelectorNavigator {
       },
       barrierDismissible: true,
       onModalDismissedWithBarrierTap: () {
-        Navigator.of(context).pop(false);
+        Navigator.pop(context);
       },
       // maxDialogWidth: 560,
       // minDialogWidth: 400,
