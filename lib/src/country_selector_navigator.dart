@@ -347,10 +347,14 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
   Future<IsoCode?> show(
     BuildContext context,
   ) {
+
+      final modalWidth = MediaQuery.of(context).size.width * 0.95; // Or your desired width
+
     return showModalBottomSheet<IsoCode>(
       context: context,
       useRootNavigator: false,
       builder: (_) => SizedBox(
+        width: modalWidth,
         height: height ?? MediaQuery.of(context).size.height - 90,
         child: _getCountrySelectorSheet(
           inputContext: context,
