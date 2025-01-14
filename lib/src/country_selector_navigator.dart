@@ -35,7 +35,7 @@ abstract class CountrySelectorNavigator {
     this.searchBoxIconColor,
     this.scrollPhysics,
     this.flagSize = 40,
-    this.useRootNavigator = true,
+    this.useRootNavigator = false,
   }) : showDialCode = showDialCode ?? showCountryCode ?? true;
 
   @Deprecated('Use [show] instead')
