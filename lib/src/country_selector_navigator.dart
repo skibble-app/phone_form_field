@@ -424,6 +424,7 @@ class CustomWoltModalSheetNavigator extends CountrySelectorNavigator {
       modalTypeBuilder: (context) {
         return woltModalType!;
       },
+      useRootNavigator: false,
 
       pageContentDecorator: (child) {
         return child;
