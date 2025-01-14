@@ -411,9 +411,10 @@ class CustomWoltModalSheetNavigator extends CountrySelectorNavigator {
   ) {
     return WoltModalSheet.show<IsoCode>(
       context: context,
+
       pageListBuilder: (BuildContext context) {
         return [
-          WoltModalSheetPage(
+          NonScrollingWoltModalSheetPage(
               child: _getCountrySelectorSheet(
             inputContext: context,
             onCountrySelected: (country) => Navigator.pop(context, country),
