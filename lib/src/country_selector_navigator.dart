@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 abstract class CountrySelectorNavigator {
   final List<IsoCode>? countries;
@@ -17,26 +18,28 @@ abstract class CountrySelectorNavigator {
   final ScrollPhysics? scrollPhysics;
   final double flagSize;
   final bool useRootNavigator;
+  final WoltModalType? woltModalType;
 
-  const CountrySelectorNavigator({
-    this.countries,
-    this.favorites,
-    @Deprecated('This is always on, this can be safely removed')
-    bool addSeparator = true,
-    @Deprecated('Use [showDialCode] instead') bool? showCountryCode,
-    bool? showDialCode,
-    this.sortCountries = false,
-    this.noResultMessage,
-    required this.searchAutofocus,
-    this.subtitleStyle,
-    this.titleStyle,
-    this.searchBoxDecoration,
-    this.searchBoxTextStyle,
-    this.searchBoxIconColor,
-    this.scrollPhysics,
-    this.flagSize = 40,
-    this.useRootNavigator = false,
-  }) : showDialCode = showDialCode ?? showCountryCode ?? true;
+  const CountrySelectorNavigator(
+      {this.countries,
+      this.favorites,
+      @Deprecated('This is always on, this can be safely removed')
+      bool addSeparator = true,
+      @Deprecated('Use [showDialCode] instead') bool? showCountryCode,
+      bool? showDialCode,
+      this.sortCountries = false,
+      this.noResultMessage,
+      required this.searchAutofocus,
+      this.subtitleStyle,
+      this.titleStyle,
+      this.searchBoxDecoration,
+      this.searchBoxTextStyle,
+      this.searchBoxIconColor,
+      this.scrollPhysics,
+      this.flagSize = 40,
+      this.useRootNavigator = false,
+      this.woltModalType})
+      : showDialCode = showDialCode ?? showCountryCode ?? true;
 
   @Deprecated('Use [show] instead')
   Future<IsoCode?> navigate(BuildContext context) => show(context);
@@ -173,6 +176,25 @@ abstract class CountrySelectorNavigator {
     Color? searchBoxIconColor,
     ScrollPhysics? scrollPhysics,
   }) = DraggableModalBottomSheetNavigator._;
+
+  const factory CountrySelectorNavigator.customWoltSheet(
+      {double? height,
+      List<IsoCode>? countries,
+      List<IsoCode>? favorites,
+      @Deprecated('This is always on, this can be safely removed')
+      bool addSeparator,
+      @Deprecated('Use [showDialCode] instead') bool? showCountryCode,
+      bool? showDialCode,
+      bool sortCountries,
+      String? noResultMessage,
+      bool searchAutofocus,
+      TextStyle? subtitleStyle,
+      TextStyle? titleStyle,
+      InputDecoration? searchBoxDecoration,
+      TextStyle? searchBoxTextStyle,
+      Color? searchBoxIconColor,
+      ScrollPhysics? scrollPhysics,
+      WoltModalType? woltModalType}) = CustomWoltModalSheetNavigator._;
 }
 
 class DialogNavigator extends CountrySelectorNavigator {
@@ -347,14 +369,10 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
   Future<IsoCode?> show(
     BuildContext context,
   ) {
-
-      final modalWidth = MediaQuery.of(context).size.width * 0.95; // Or your desired width
-
     return showModalBottomSheet<IsoCode>(
       context: context,
       useRootNavigator: false,
       builder: (_) => SizedBox(
-        width: modalWidth,
         height: height ?? MediaQuery.of(context).size.height - 90,
         child: _getCountrySelectorSheet(
           inputContext: context,
@@ -363,6 +381,74 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
       ),
       isScrollControlled: true,
     );
+  }
+}
+
+class CustomWoltModalSheetNavigator extends CountrySelectorNavigator {
+  final double? height;
+
+  const CustomWoltModalSheetNavigator._(
+      {this.height,
+      super.countries,
+      super.favorites,
+      super.addSeparator,
+      super.showDialCode,
+      super.showCountryCode,
+      super.sortCountries,
+      super.noResultMessage,
+      super.searchAutofocus = kIsWeb,
+      super.subtitleStyle,
+      super.titleStyle,
+      super.searchBoxDecoration,
+      super.searchBoxTextStyle,
+      super.searchBoxIconColor,
+      super.scrollPhysics,
+      super.woltModalType});
+
+  @override
+  Future<IsoCode?> show(
+    BuildContext context,
+  ) {
+    return WoltModalSheet.show<IsoCode>(
+      context: context,
+      pageListBuilder: (BuildContext context) {
+        return [
+          WoltModalSheetPage(
+              child: _getCountrySelectorSheet(
+            inputContext: context,
+            onCountrySelected: (country) => Navigator.pop(context, country),
+          ))
+        ];
+      },
+      modalTypeBuilder: (context) {
+        return woltModalType!;
+      },
+
+      pageContentDecorator: (child) {
+        return child;
+      },
+      barrierDismissible: true,
+      onModalDismissedWithBarrierTap: () {
+        Navigator.of(context).pop(false);
+      },
+      // maxDialogWidth: 560,
+      // minDialogWidth: 400,
+      // minPageHeight: 0.0,
+      // maxPageHeight: 0.9,
+    );
+
+    // return showModalBottomSheet<IsoCode>(
+    //   context: context,
+    //   useRootNavigator: false,
+    //   builder: (_) => SizedBox(
+    //     height: height ?? MediaQuery.of(context).size.height - 90,
+    //     child: _getCountrySelectorSheet(
+    //       inputContext: context,
+    //       onCountrySelected: (country) => Navigator.pop(context, country),
+    //     ),
+    //   ),
+    //   isScrollControlled: true,
+    // );
   }
 }
 
