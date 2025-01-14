@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
@@ -154,6 +156,27 @@ abstract class CountrySelectorNavigator {
     ScrollPhysics? scrollPhysics,
   }) = ModalBottomSheetNavigator._;
 
+
+  const factory CountrySelectorNavigator.dropdown({
+    double? height,
+    List<IsoCode>? countries,
+    List<IsoCode>? favorites,
+    @Deprecated('This is always on, this can be safely removed')
+    bool addSeparator,
+    @Deprecated('Use [showDialCode] instead') bool? showCountryCode,
+    bool? showDialCode,
+    bool sortCountries,
+    String? noResultMessage,
+    bool searchAutofocus,
+    TextStyle? subtitleStyle,
+    TextStyle? titleStyle,
+    InputDecoration? searchBoxDecoration,
+    TextStyle? searchBoxTextStyle,
+    Color? searchBoxIconColor,
+    ScrollPhysics? scrollPhysics,
+  }) = DropdownNavigator._;
+
+
   const factory CountrySelectorNavigator.draggableBottomSheet({
     double initialChildSize,
     double minChildSize,
@@ -177,24 +200,7 @@ abstract class CountrySelectorNavigator {
     ScrollPhysics? scrollPhysics,
   }) = DraggableModalBottomSheetNavigator._;
 
-  const factory CountrySelectorNavigator.customWoltSheet(
-      {double? height,
-      List<IsoCode>? countries,
-      List<IsoCode>? favorites,
-      @Deprecated('This is always on, this can be safely removed')
-      bool addSeparator,
-      @Deprecated('Use [showDialCode] instead') bool? showCountryCode,
-      bool? showDialCode,
-      bool sortCountries,
-      String? noResultMessage,
-      bool searchAutofocus,
-      TextStyle? subtitleStyle,
-      TextStyle? titleStyle,
-      InputDecoration? searchBoxDecoration,
-      TextStyle? searchBoxTextStyle,
-      Color? searchBoxIconColor,
-      ScrollPhysics? scrollPhysics,
-      WoltModalType? woltModalType}) = CustomWoltModalSheetNavigator._;
+
 }
 
 class DialogNavigator extends CountrySelectorNavigator {
@@ -384,10 +390,10 @@ class ModalBottomSheetNavigator extends CountrySelectorNavigator {
   }
 }
 
-class CustomWoltModalSheetNavigator extends CountrySelectorNavigator {
+class DropdownNavigator extends CountrySelectorNavigator {
   final double? height;
 
-  const CustomWoltModalSheetNavigator._(
+  const DropdownNavigator._(
       {this.height,
       super.countries,
       super.favorites,
@@ -406,52 +412,56 @@ class CustomWoltModalSheetNavigator extends CountrySelectorNavigator {
       super.woltModalType});
 
   @override
-  Future<IsoCode?> show(
-    BuildContext context,
-  ) {
-    return WoltModalSheet.show<IsoCode?>(
-      context: context,
-
-      pageListBuilder: (BuildContext context) {
-        return [
-          NonScrollingWoltModalSheetPage(
+Future<IsoCode?> show(BuildContext context) {
+  final RenderBox button = context.findRenderObject() as RenderBox;
+  final Offset position = button.localToGlobal(Offset.zero);
+  
+  final overlay = Overlay.of(context);
+  final completer = Completer<IsoCode?>();
+  
+  late final OverlayEntry entry; 
+  entry = OverlayEntry(
+    builder: (context) => Stack(
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            entry.remove();
+            completer.complete(null);
+          },
+          child: Container(
+            color: Colors.transparent,
+          ),
+        ),
+        Positioned(
+          top: position.dy + button.size.height,
+          left: position.dx,
+          child: Material(
+            elevation: 8,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              width: button.size.width,
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.4,
+              ),
               child: _getCountrySelectorSheet(
-            inputContext: context,
-            onCountrySelected: (country) => Navigator.pop(context, country),
-          ))
-        ];
-      },
-      modalTypeBuilder: (context) {
-        return woltModalType!;
-      },
-      useRootNavigator: false,
+                inputContext: context,
+                onCountrySelected: (country) {
+                  entry.remove();
+                  completer.complete(country);
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 
-      pageContentDecorator: (child) {
-        return child;
-      },
-      barrierDismissible: true,
-      onModalDismissedWithBarrierTap: () {
-        Navigator.pop(context);
-      },
-      // maxDialogWidth: 560,
-      // minDialogWidth: 400,
-      // minPageHeight: 0.0,
-      // maxPageHeight: 0.9,
-    );
+  overlay.insert(entry);
+  return completer.future;
+}
 
-    // return showModalBottomSheet<IsoCode>(
-    //   context: context,
-    //   useRootNavigator: false,
-    //   builder: (_) => SizedBox(
-    //     height: height ?? MediaQuery.of(context).size.height - 90,
-    //     child: _getCountrySelectorSheet(
-    //       inputContext: context,
-    //       onCountrySelected: (country) => Navigator.pop(context, country),
-    //     ),
-    //   ),
-    //   isScrollControlled: true,
-    // );
-  }
 }
 
 class DraggableModalBottomSheetNavigator extends CountrySelectorNavigator {
