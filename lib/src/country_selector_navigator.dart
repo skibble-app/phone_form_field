@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+// import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 abstract class CountrySelectorNavigator {
   final List<IsoCode>? countries;
@@ -20,7 +20,7 @@ abstract class CountrySelectorNavigator {
   final ScrollPhysics? scrollPhysics;
   final double flagSize;
   final bool useRootNavigator;
-  final WoltModalType? woltModalType;
+  // final WoltModalType? woltModalType;
 
   const CountrySelectorNavigator(
       {this.countries,
@@ -40,7 +40,8 @@ abstract class CountrySelectorNavigator {
       this.scrollPhysics,
       this.flagSize = 40,
       this.useRootNavigator = false,
-      this.woltModalType})
+      // this.woltModalType
+      })
       : showDialCode = showDialCode ?? showCountryCode ?? true;
 
   @Deprecated('Use [show] instead')
@@ -409,7 +410,8 @@ class DropdownNavigator extends CountrySelectorNavigator {
       super.searchBoxTextStyle,
       super.searchBoxIconColor,
       super.scrollPhysics,
-      super.woltModalType});
+      // super.woltModalType
+      });
 
   @override
 Future<IsoCode?> show(BuildContext context) {
@@ -440,7 +442,7 @@ Future<IsoCode?> show(BuildContext context) {
             elevation: 8,
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              width: button.size.width,
+              width: button.size.width + 200,
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.4,
               ),
