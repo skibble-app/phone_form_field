@@ -409,40 +409,105 @@ class DropdownNavigator extends CountrySelectorNavigator {
       super.scrollPhysics,
     });
 
-      @override
+//       @override
+// Future<IsoCode?> show(BuildContext context) {
+//   final RenderBox button = context.findRenderObject() as RenderBox;
+//   final Offset position = button.localToGlobal(Offset.zero);
+  
+//   return showDialog<IsoCode>(
+//     context: context,
+//     barrierColor: Colors.transparent,
+//     useRootNavigator: false,
+//     builder: (_) => Stack(
+//       children: [
+//         Positioned(
+//           top: position.dy + button.size.height,
+//           left: position.dx,
+//           child: Material(
+//             elevation: 8,
+//             borderRadius: BorderRadius.circular(8),
+//             child: Container(
+//               width: button.size.width + 200,
+//               constraints: BoxConstraints(
+//                 maxHeight: MediaQuery.of(context).size.height * 0.4,
+//               ),
+//               child: _getCountrySelectorSheet(
+//                 inputContext: context,
+//                 onCountrySelected: (country) => Navigator.pop(context, country),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ],
+//     ),
+//   );
+// }
+
+
+@override
 Future<IsoCode?> show(BuildContext context) {
+  // Get the button's render box and position
   final RenderBox button = context.findRenderObject() as RenderBox;
   final Offset position = button.localToGlobal(Offset.zero);
+  final Size buttonSize = button.size;
   
-  return showDialog<IsoCode>(
-    context: context,
-    barrierColor: Colors.transparent,
-    useRootNavigator: false,
-    builder: (_) => Stack(
+  final overlay = Overlay.of(context);
+  final completer = Completer<IsoCode?>();
+  
+  late final OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (context) => Stack(
       children: [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            entry.remove();
+            completer.complete(null);
+          },
+          child: Container(
+            color: Colors.transparent,
+          ),
+        ),
         Positioned(
-          top: position.dy + button.size.height,
+          // Align exactly with the button
+          top: position.dy,
           left: position.dx,
+          width: buttonSize.width,
           child: Material(
             elevation: 8,
             borderRadius: BorderRadius.circular(8),
-            child: Container(
-              width: button.size.width + 200,
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.4,
-              ),
-              child: _getCountrySelectorSheet(
-                inputContext: context,
-                onCountrySelected: (country) => Navigator.pop(context, country),
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // This container represents the button's space
+                Container(
+                  height: buttonSize.height,
+                  color: Colors.transparent,
+                ),
+                // The actual dropdown content
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.4,
+                  ),
+                  child: _getCountrySelectorSheet(
+                    inputContext: context,
+                    onCountrySelected: (country) {
+                      entry.remove();
+                      completer.complete(country);
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ],
     ),
   );
-}
 
+  overlay.insert(entry);
+  return completer.future;
+}
 
 
 //     @override
