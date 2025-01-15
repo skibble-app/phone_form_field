@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_country_selector/flutter_country_selector.dart';
-// import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 abstract class CountrySelectorNavigator {
   final List<IsoCode>? countries;
@@ -20,7 +19,6 @@ abstract class CountrySelectorNavigator {
   final ScrollPhysics? scrollPhysics;
   final double flagSize;
   final bool useRootNavigator;
-  // final WoltModalType? woltModalType;
 
   const CountrySelectorNavigator(
       {this.countries,
@@ -40,7 +38,6 @@ abstract class CountrySelectorNavigator {
       this.scrollPhysics,
       this.flagSize = 40,
       this.useRootNavigator = false,
-      // this.woltModalType
       })
       : showDialCode = showDialCode ?? showCountryCode ?? true;
 
@@ -410,31 +407,18 @@ class DropdownNavigator extends CountrySelectorNavigator {
       super.searchBoxTextStyle,
       super.searchBoxIconColor,
       super.scrollPhysics,
-      // super.woltModalType
-      });
+    });
 
-  @override
+      @override
 Future<IsoCode?> show(BuildContext context) {
   final RenderBox button = context.findRenderObject() as RenderBox;
   final Offset position = button.localToGlobal(Offset.zero);
   
-  final overlay = Overlay.of(context);
-  final completer = Completer<IsoCode?>();
-  
-  late final OverlayEntry entry; 
-  entry = OverlayEntry(
-    builder: (context) => Stack(
+  return showDialog<IsoCode>(
+    context: context,
+    barrierColor: Colors.transparent,
+    builder: (_) => Stack(
       children: [
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            entry.remove();
-            completer.complete(null);
-          },
-          child: Container(
-            color: Colors.transparent,
-          ),
-        ),
         Positioned(
           top: position.dy + button.size.height,
           left: position.dx,
@@ -448,10 +432,7 @@ Future<IsoCode?> show(BuildContext context) {
               ),
               child: _getCountrySelectorSheet(
                 inputContext: context,
-                onCountrySelected: (country) {
-                  entry.remove();
-                  completer.complete(country);
-                },
+                onCountrySelected: (country) => Navigator.pop(context, country),
               ),
             ),
           ),
@@ -459,10 +440,58 @@ Future<IsoCode?> show(BuildContext context) {
       ],
     ),
   );
-
-  overlay.insert(entry);
-  return completer.future;
 }
+
+//     @override
+//   Future<IsoCode?> show(BuildContext context) {
+//   final RenderBox button = context.findRenderObject() as RenderBox;
+//   final Offset position = button.localToGlobal(Offset.zero);
+  
+//   final overlay = Overlay.of(context);
+//   final completer = Completer<IsoCode?>();
+  
+//   late final OverlayEntry entry; 
+//   entry = OverlayEntry(
+//     builder: (context) => Stack(
+//       children: [
+//         GestureDetector(
+//           behavior: HitTestBehavior.translucent,
+//           onTap: () {
+//             entry.remove();
+//             completer.complete(null);
+//           },
+//           child: Container(
+//             color: Colors.transparent,
+//           ),
+//         ),
+//         Positioned(
+//           top: position.dy + button.size.height,
+//           left: position.dx,
+//           child: Material(
+//             elevation: 8,
+//             borderRadius: BorderRadius.circular(8),
+//             child: Container(
+//               width: button.size.width + 200,
+//               constraints: BoxConstraints(
+//                 maxHeight: MediaQuery.of(context).size.height * 0.4,
+//               ),
+//               child: _getCountrySelectorSheet(
+//                 inputContext: context,
+//                 onCountrySelected: (country) {
+//                   entry.remove();
+//                   completer.complete(country);
+//                 },
+//               ),
+//             ),
+//           ),
+//         ),
+//       ],
+//     ),
+//   );
+
+//   overlay.insert(entry);
+//   return completer.future;
+// }
 
 }
 
