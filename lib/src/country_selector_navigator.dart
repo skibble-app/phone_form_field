@@ -417,6 +417,7 @@ Future<IsoCode?> show(BuildContext context) {
   return showDialog<IsoCode>(
     context: context,
     barrierColor: Colors.transparent,
+    useRootNavigator: false,
     builder: (_) => Stack(
       children: [
         Positioned(
